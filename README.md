@@ -15,7 +15,8 @@ The configuration file :
 		"repositories": [
 			""
 		]
-	}]
+	}],
+	"organisation": ""
 }
 
 ```

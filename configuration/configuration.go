@@ -12,7 +12,8 @@ import (
 
 // Configuration represents the configuration file of the project.
 type Configuration struct {
-	Labels []Label `json:"labels"`
+	Labels       []Label `json:"labels"`
+	Organisation string  `json:"organisation" validate:"nonzero"`
 }
 
 // FromFileAt creates configuration object from a file at path.
@@ -29,10 +30,16 @@ func FromFileAt(path *string) (*Configuration, error) {
 
 	errorInLabels := false
 
-	// Validate the JSON structure
+	// Validate current JSON
+	if err := validator.Validate(config); err != nil {
+		fmt.Printf("Error in configuration : %v\n", err)
+		errorInLabels = true
+	}
+
+	// Validate the JSON labels
 	for index, label := range config.Labels {
-		if errs := validator.Validate(label); errs != nil {
-			fmt.Printf("Error in label %v : %v\n", index+1, errs)
+		if err := validator.Validate(label); err != nil {
+			fmt.Printf("Error in label %v : %v\n", index+1, err)
 			errorInLabels = true
 		}
 		if labelsNames[label.Name] {
