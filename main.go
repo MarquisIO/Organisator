@@ -27,13 +27,15 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	fmt.Println(*config)
 
-	github := github.Application{
+	app := github.Application{
 		Token:        *githubToken,
 		Organisation: config.Organisation,
 		Config:       config,
 	}
 
-	github.Start()
+	if err := app.Start(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

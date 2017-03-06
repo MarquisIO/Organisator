@@ -2,7 +2,8 @@ package github
 
 import (
 	"fmt"
-	"os"
+
+	"regexp"
 
 	"github.com/Shakarang/Orgmanager/configuration"
 	"github.com/Shakarang/Orgmanager/models"
@@ -21,47 +22,61 @@ func (app *Application) getAllRepositoriesFromOrganisation() ([]models.Repositor
 
 	url := fmt.Sprintf("/orgs/%v/repos?access_token=%v", app.Organisation, app.Token)
 
-	fmt.Println(url)
-
 	var repos []models.Repository
 
 	if err := network.GetJSON(url, &repos); err != nil {
 		return nil, err
 	}
 
-	fmt.Printf("Repo : %v\n", repos)
 	return repos, nil
 }
 
 // Start begins logic
 func (app *Application) Start() error {
-
+	fmt.Println("Start github logic.")
 	repositories, err := app.getAllRepositoriesFromOrganisation()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 
 	for _, repository := range repositories {
 		// Current labels of a repository
-		currentLabels := repository.GetAllLabels(app.Token)
-		fmt.Println(repository)
-		for _, labelToAdd := range app.Config.Labels {
+		fmt.Println("Actions on repository : ", repository.Name)
+		app.labelsActions(repository)
+	}
 
-			// TODO Check regexp here
+	return nil
+}
 
-			labelToAdd.Information.Repository = repository.Name
-			if _, isThere := currentLabels[labelToAdd.Name]; isThere {
-				// Label already present, will update it
-				fmt.Printf("Update label %v\n", labelToAdd.Name)
-				labelToAdd.Update(app.Token)
-			} else {
-				// Create label
-				fmt.Printf("Create label %v\n", labelToAdd.Name)
-				labelToAdd.Create(app.Token)
+func (app *Application) labelsActions(repository models.Repository) {
+
+	currentLabels := repository.GetAllLabels(app.Token)
+
+	for _, labelToAdd := range app.Config.Labels {
+		labelToAdd.Information.Repository = repository.Name
+		if len(labelToAdd.Repositories) == 0 { // No rule, accept all repo
+			app.updateLabel(currentLabels, &labelToAdd)
+		} else {
+			for _, repositoyRegex := range labelToAdd.Repositories {
+				if matched, err := regexp.MatchString(repositoyRegex, repository.Name); matched {
+					app.updateLabel(currentLabels, &labelToAdd)
+					break
+				} else if err != nil {
+					fmt.Printf("\tError matching regex %v : %v\n", repositoyRegex, err)
+					continue
+				}
+				fmt.Printf("\tRepository %v not matching any regexp\n", repository.Name)
 			}
 		}
-
 	}
-	return nil
+}
+
+func (app *Application) updateLabel(currentLabels map[string]models.Label, label *models.Label) {
+	if _, isThere := currentLabels[label.Name]; isThere {
+		fmt.Println("\tLabel", label.Name, "exists in", label.Information.Repository, "update it.")
+		label.Update(app.Token)
+	} else {
+		fmt.Println("\tCreate label", label.Name, "in", label.Information.Repository)
+		label.Create(app.Token)
+	}
 }

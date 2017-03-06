@@ -1,9 +1,9 @@
 {
 	"labels": [{
 		"name": "Hell",
-		"color": "FF0",
+		"color": "0FF",
 		"repositories": [
-			""
+			"test_2"
 		]
 	}],
 	"organisation": "Thorent"

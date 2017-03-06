@@ -19,7 +19,6 @@ type Label struct {
 
 func (label *Label) Create(token string) {
 	url := fmt.Sprintf("/repos/%v/%v/labels?access_token=%v", label.Information.Organisation, label.Information.Repository, token)
-	fmt.Println(url)
 	if err := network.PostJSON(url, label); err != nil {
 		fmt.Printf("Error creating label %v for repository %v : %v\n", label.Name, label.Information.Repository, err)
 	}
@@ -27,7 +26,6 @@ func (label *Label) Create(token string) {
 
 func (label *Label) Update(token string) {
 	url := fmt.Sprintf("/repos/%v/%v/labels/%v?access_token=%v", label.Information.Organisation, label.Information.Repository, label.Name, token)
-	fmt.Println(url)
 	if err := network.PatchJSON(url, label); err != nil {
 		fmt.Printf("Error creating label %v for repository %v : %v\n", label.Name, label.Information.Repository, err)
 	}

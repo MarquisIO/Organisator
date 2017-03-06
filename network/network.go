@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -40,13 +38,12 @@ func PatchJSON(url string, object interface{}) error {
 		return err
 	}
 	request.Header.Set("Content-Type", "application/json")
-	res, err := httpClient.Do(request)
+	_, err = httpClient.Do(request)
 
 	if err != nil {
 		return err
 	}
 
-	io.Copy(os.Stdout, res.Body)
 	return nil
 }
 
@@ -55,12 +52,11 @@ func PostJSON(url string, object interface{}) error {
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(object)
 
-	res, err := httpClient.Post(fmt.Sprintf("%v%v", rootURL, url), "application/json", b)
+	_, err := httpClient.Post(fmt.Sprintf("%v%v", rootURL, url), "application/json", b)
 
 	if err != nil {
 		return err
 	}
 
-	io.Copy(os.Stdout, res.Body)
 	return nil
 }
