@@ -5,9 +5,9 @@ import (
 
 	"regexp"
 
-	"github.com/Shakarang/Orgmanager/configuration"
-	"github.com/Shakarang/Orgmanager/models"
-	"github.com/Shakarang/Orgmanager/network"
+	"github.com/MarquisIO/Organisator/configuration"
+	"github.com/MarquisIO/Organisator/models"
+	"github.com/MarquisIO/Organisator/network"
 )
 
 // Application is our current Github implementation.
@@ -15,20 +15,6 @@ type Application struct {
 	Token        string
 	Organisation string
 	Config       *configuration.Configuration
-}
-
-// getAllRepositoriesFromOrganisation gets a list of all repositories.
-func (app *Application) getAllRepositoriesFromOrganisation() ([]models.Repository, error) {
-
-	url := fmt.Sprintf("/orgs/%v/repos?access_token=%v", app.Organisation, app.Token)
-
-	var repos []models.Repository
-
-	if err := network.GetJSON(url, &repos); err != nil {
-		return nil, err
-	}
-
-	return repos, nil
 }
 
 // Start begins logic
@@ -48,6 +34,21 @@ func (app *Application) Start() error {
 	return nil
 }
 
+// getAllRepositoriesFromOrganisation gets a list of all repositories.
+func (app *Application) getAllRepositoriesFromOrganisation() ([]models.Repository, error) {
+
+	url := fmt.Sprintf("/orgs/%v/repos?access_token=%v", app.Organisation, app.Token)
+
+	var repos []models.Repository
+
+	if err := network.GetJSON(url, &repos); err != nil {
+		return nil, err
+	}
+
+	return repos, nil
+}
+
+// labelsActions manages all actions on labels.
 func (app *Application) labelsActions(repository models.Repository) {
 
 	currentLabels := repository.GetAllLabels(app.Token)
@@ -71,6 +72,7 @@ func (app *Application) labelsActions(repository models.Repository) {
 	}
 }
 
+// updateLabel update label on Github by updating or creating it
 func (app *Application) updateLabel(currentLabels map[string]models.Label, label *models.Label) {
 	if _, isThere := currentLabels[label.Name]; isThere {
 		fmt.Println("\tLabel", label.Name, "exists in", label.Information.Repository, "update it.")

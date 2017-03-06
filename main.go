@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Shakarang/Orgmanager/configuration"
-	"github.com/Shakarang/Orgmanager/github"
+	"github.com/MarquisIO/Organisator/configuration"
+	"github.com/MarquisIO/Organisator/github"
 )
 
 func main() {

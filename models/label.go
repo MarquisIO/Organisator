@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 
-	"github.com/Shakarang/Orgmanager/network"
+	"github.com/MarquisIO/Organisator/network"
 )
 
 // Label represents Github label object
@@ -17,6 +17,7 @@ type Label struct {
 	}
 }
 
+// Create creates new label on github repository
 func (label *Label) Create(token string) {
 	url := fmt.Sprintf("/repos/%v/%v/labels?access_token=%v", label.Information.Organisation, label.Information.Repository, token)
 	if err := network.PostJSON(url, label); err != nil {
@@ -24,6 +25,7 @@ func (label *Label) Create(token string) {
 	}
 }
 
+// Update updates existing label on github repository
 func (label *Label) Update(token string) {
 	url := fmt.Sprintf("/repos/%v/%v/labels/%v?access_token=%v", label.Information.Organisation, label.Information.Repository, label.Name, token)
 	if err := network.PatchJSON(url, label); err != nil {

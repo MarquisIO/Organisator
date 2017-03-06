@@ -1,7 +1,7 @@
 package models
 
 import "fmt"
-import "github.com/Shakarang/Orgmanager/network"
+import "github.com/MarquisIO/Organisator/network"
 
 // Repository represents Github repository and its data.
 type Repository struct {
@@ -13,6 +13,7 @@ type Repository struct {
 	}
 }
 
+// GetAllLabels gets all existing labels on a Github repository
 func (repo *Repository) GetAllLabels(token string) map[string]Label {
 
 	url := fmt.Sprintf("/repos/%v/%v/labels?access_token=%v", repo.Owner.Name, repo.Name, token)

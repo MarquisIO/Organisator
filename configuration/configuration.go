@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/Shakarang/Orgmanager/models"
+	"github.com/MarquisIO/Organisator/models"
 	validator "gopkg.in/validator.v2"
 )
 

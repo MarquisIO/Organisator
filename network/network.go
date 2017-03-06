@@ -14,6 +14,7 @@ const (
 	rootURL = "https://api.github.com"
 )
 
+// GetJSON performs a get call on specific url and fills the object structure.
 func GetJSON(url string, object interface{}) error {
 	resp, err := httpClient.Get(fmt.Sprintf("%v%v", rootURL, url))
 	if err != nil {
@@ -28,6 +29,7 @@ func GetJSON(url string, object interface{}) error {
 	return json.NewDecoder(resp.Body).Decode(object)
 }
 
+// PatchJSON performs a patch call on specific url with the given object.
 func PatchJSON(url string, object interface{}) error {
 
 	b := new(bytes.Buffer)
@@ -47,6 +49,7 @@ func PatchJSON(url string, object interface{}) error {
 	return nil
 }
 
+// PatchJSON performs a post call on specific url with the given object.
 func PostJSON(url string, object interface{}) error {
 
 	b := new(bytes.Buffer)
