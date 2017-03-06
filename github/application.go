@@ -1,44 +1,67 @@
 package github
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
-	"time"
+	"os"
+
+	"github.com/Shakarang/Orgmanager/configuration"
+	"github.com/Shakarang/Orgmanager/models"
+	"github.com/Shakarang/Orgmanager/network"
 )
 
 // Application is our current Github implementation.
 type Application struct {
-	Token string
+	Token        string
+	Organisation string
+	Config       *configuration.Configuration
 }
 
-const (
-	rootURL = "https://api.github.com"
-)
+// getAllRepositoriesFromOrganisation gets a list of all repositories.
+func (app *Application) getAllRepositoriesFromOrganisation() ([]models.Repository, error) {
 
-var httpClient = &http.Client{Timeout: 10 * time.Second}
-
-func (app *Application) getJSON(url string, object interface{}) error {
-	resp, err := httpClient.Get(fmt.Sprintf("%v?access_token=%v", url, app.Token))
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	return json.NewDecoder(resp.Body).Decode(object)
-}
-
-// GetAllRepositoriesFromOrganisation gets a list of all repositories.
-func (app *Application) GetAllRepositoriesFromOrganisation(name string) (*[]Repository, error) {
-
-	url := fmt.Sprintf("%v/orgs/%v/repos", rootURL, name)
+	url := fmt.Sprintf("/orgs/%v/repos?access_token=%v", app.Organisation, app.Token)
 
 	fmt.Println(url)
 
-	var repos []Repository
+	var repos []models.Repository
 
-	app.getJSON(url, &repos)
+	if err := network.GetJSON(url, &repos); err != nil {
+		return nil, err
+	}
 
 	fmt.Printf("Repo : %v\n", repos)
-	return &repos, nil
+	return repos, nil
+}
+
+// Start begins logic
+func (app *Application) Start() error {
+
+	repositories, err := app.getAllRepositoriesFromOrganisation()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	for _, repository := range repositories {
+		// Current labels of a repository
+		currentLabels := repository.GetAllLabels(app.Token)
+		fmt.Println(repository)
+		for _, labelToAdd := range app.Config.Labels {
+
+			// TODO Check regexp here
+
+			labelToAdd.Information.Repository = repository.Name
+			if _, isThere := currentLabels[labelToAdd.Name]; isThere {
+				// Label already present, will update it
+				fmt.Printf("Update label %v\n", labelToAdd.Name)
+				labelToAdd.Update(app.Token)
+			} else {
+				// Create label
+				fmt.Printf("Create label %v\n", labelToAdd.Name)
+				labelToAdd.Create(app.Token)
+			}
+		}
+
+	}
+	return nil
 }

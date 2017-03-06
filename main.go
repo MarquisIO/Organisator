@@ -30,10 +30,10 @@ func main() {
 	fmt.Println(*config)
 
 	github := github.Application{
-		Token: *githubToken,
+		Token:        *githubToken,
+		Organisation: config.Organisation,
+		Config:       config,
 	}
 
-	github.GetAllRepositoriesFromOrganisation(config.Organisation)
-	// configuration.FromFileAt(path)
-	// configuration.NewConfiguration()
+	github.Start()
 }

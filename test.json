@@ -1,10 +1,10 @@
 {
 	"labels": [{
-		"name": "Hello",
-		"color": "FFF",
+		"name": "Hell",
+		"color": "FF0",
 		"repositories": [
 			""
 		]
 	}],
-	"organisation": "MarquisIO"
+	"organisation": "Thorent"
 }

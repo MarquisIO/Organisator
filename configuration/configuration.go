@@ -7,13 +7,14 @@ import (
 	"log"
 	"os"
 
+	"github.com/Shakarang/Orgmanager/models"
 	validator "gopkg.in/validator.v2"
 )
 
 // Configuration represents the configuration file of the project.
 type Configuration struct {
-	Labels       []Label `json:"labels"`
-	Organisation string  `json:"organisation" validate:"nonzero"`
+	Labels       []models.Label `json:"labels"`
+	Organisation string         `json:"organisation" validate:"nonzero"`
 }
 
 // FromFileAt creates configuration object from a file at path.
@@ -38,6 +39,7 @@ func FromFileAt(path *string) (*Configuration, error) {
 
 	// Validate the JSON labels
 	for index, label := range config.Labels {
+		config.Labels[index].Information.Organisation = config.Organisation
 		if err := validator.Validate(label); err != nil {
 			fmt.Printf("Error in label %v : %v\n", index+1, err)
 			errorInLabels = true
